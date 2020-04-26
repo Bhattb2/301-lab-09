@@ -152,15 +152,11 @@ function Trails(trail) {
 app.get('/movies', movieFunction);
 function movieFunction (request, response){
 
-  // let latitude = request.query.latitude;
-  // let longitude = request.query.longitude;
   const city = request.query.search_query;
-  
   const moviesUrl = `https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&language=en-US&query=${city}`; 
     return superagent.get(moviesUrl)
     .then(data => {
-      
-      let moviesList = data.body.results.map( value => {
+        let moviesList = data.body.results.map( value => {
         return new MovieData(value);
         });
 
