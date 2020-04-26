@@ -38,7 +38,14 @@ function locationFunction (request, response) {
   const searchValues = [city];
   return client.query(searchSQL, searchValues)
     .then(results => {
+
+      // console.log(results);
       if (results.rowCount) {
+        // console.log(`${city} came from database request`);
+        console.log(results.rows[0],'line 44');
+
+      if (results.rowCount) {
+
 
         response.send(results.rows[0]);
       } 
@@ -47,7 +54,14 @@ function locationFunction (request, response) {
           .query(queryStringParams)
           .then( data => {
             let locationData = data.body[0];
+
+            // console.log(locationData);
             let location = new Location(city,locationData);
+            // console.log(location)
+            // console.log(`${city} came from API`);
+
+            let location = new Location(city,locationData);
+          
             let SQL = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4) RETURNING * `;
             let saveVal = [location.search_query, location.formatted_query, location.latitude, location.longitude];
             console.log(saveVal, 'line 58');
@@ -78,6 +92,9 @@ app.get('/weather', weatherFunction);
 function weatherFunction (request, response){
   
       let latitude = request.query.latitude;
+
+      // console.log(latitude)
+
       let longitude = request.query.longitude;
       const weatherUrl = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${latitude},${longitude}`;
       return superagent.get(weatherUrl)
@@ -100,6 +117,9 @@ function weatherFunction (request, response){
 
 // WEATHER CONSTRUCTOR /////
 function WeatherConstructor(day) {
+
+    // console.log(day.forecast)
+
 this.forecast = day.summary;
 this.time = new Date(day.time*1000).toString();
 }
@@ -115,9 +135,17 @@ function trailsFunction (request, response){
       const trailsUrl = `https://hikingproject.com/data/get-trails?lat=${latitude}&lon=${longitude}&maxDistance=10&key=${process.env.TRAIL_API_KEY}`;
        return superagent.get(trailsUrl)
       .then(data => {
+
+        // console.log (data);
+          
+        let trailsList = data.body.trails.map( value => {
+         return new Trails(value);
+        });
+
         let trailsList = data.body.trails.map( value => {
         return new Trails(value);
         });
+
 
         response.status(200).json(trailsList);
 
@@ -146,6 +174,7 @@ function Trails(trail) {
   this.condition_time = trail.conditionDate.slice(11,18);
 
 }
+
 
 //  MOVIES /////
 // getting movies data
@@ -180,6 +209,7 @@ function MovieData(movie) {
   this.popularity = movie.popularity;
   this.released_on = movie.release_date;
 }
+
 
 
 
