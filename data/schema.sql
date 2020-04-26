@@ -7,4 +7,4 @@ CREATE TABLE city (
     longitude VARCHAR(255)
 );
 
--- INSERT INTO city(city_name, latitude,longitude) VALUES ('seattle', 1234567890,0987654321);
+INSERT INTO city(city_name, latitude,longitude) VALUES ('seattle', 1234567890,0987654321);
