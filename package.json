@@ -1,3 +1,4 @@
+
 {
   "name": "301-lab-06",
   "version": "1.0.0",
@@ -27,4 +28,31 @@
     "url": "https://github.com/Bhattb2/301-lab-06/issues"
   },
   "homepage": "https://github.com/Bhattb2/301-lab-06#readme"
+}
+{
+  "name": "301-lab-09",
+  "version": "1.0.0",
+  "description": "SQL, Postgres additions",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bhattb2/301-lab-09.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bhattb2/301-lab-09/issues"
+  },
+  "homepage": "https://github.com/Bhattb2/301-lab-09#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "pg": "^8.0.3",
+    "superagent": "^5.2.2"
+  }
 }
