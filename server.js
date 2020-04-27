@@ -82,20 +82,15 @@ function Location (city, geoData) {
 app.get('/weather', weatherFunction);
 function weatherFunction (request, response){
   
-      let latitude = request.query.latitude;
-      // console.log(latitude)
-      let longitude = request.query.longitude;
-      const weatherUrl = `https://api.darksky.net/forecast/${process.env.WEATHER_API_KEY}/${latitude},${longitude}`;
-      return superagent.get(weatherUrl)
-      .then(result => {
-          let weatherData = result.body.daily.data;
-          let weather = weatherData.map( day => {
-         return new WeatherConstructor(day);
-        });
-      
-        response.status(200).json(weather);
-    
-      })
+  const { latitude, longitude } = request.query;
+  const key = process.env.WEATHER_API_KEY;
+  const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${key}`;
+  superagent.get(url).then(weatherResponse => {
+    const data = weatherResponse.body.data;
+    const results = [];
+    data.map(item => results.push(new Weather(item.datetime, item.weather.description)));
+    response.send(results);
+  })
       .catch(err => {
         console.log(err);
         response.status(500).send('Weather Broke');
@@ -105,10 +100,9 @@ function weatherFunction (request, response){
  
 
 // WEATHER CONSTRUCTOR /////
-function WeatherConstructor(day) {
-    // console.log(day.forecast)
-this.forecast = day.summary;
-this.time = new Date(day.time*1000).toString();
+function Weather(date, weatherData) {
+  this.forecast = weatherData;
+  this.time = new Date(date).toDateString();
 }
 
 
@@ -120,7 +114,8 @@ function trailsFunction (request, response){
       let latitude = request.query.latitude;
       let longitude = request.query.longitude;
       const trailsUrl = `https://hikingproject.com/data/get-trails?lat=${latitude}&lon=${longitude}&maxDistance=10&key=${process.env.TRAIL_API_KEY}`;
-       return superagent.get(trailsUrl)
+      // console.log(trailsUrl)
+      return superagent.get(trailsUrl)
       .then(data => {
         // console.log (data);
           
