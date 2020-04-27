@@ -190,6 +190,42 @@ function MovieData(movie) {
   this.released_on = movie.release_date;
 }
 
+
+// YELP //////
+// getting yelp data
+app.get('/yelp', yelpFunction);
+function yelpFunction (request, response){
+
+  const city = request.query.city;
+  const yelpUrl = `https://api.yelp.com/v3/businesses/search?api_key=${process.env.YELP_API_KEY}&language=en-US&query=${city}`; 
+    return superagent.get(yelpUrl)
+    .then(data => {
+        let yelpData = data.body.results.map( city => {
+        return new YelpData(city);
+        });
+        console.log('yelp data', yelpData)
+
+        response.status(200).json(yelpData);
+
+// YELP ERROR HANDLER /////
+    })
+    .catch(err => {
+      console.log(err);
+      response.status(500).send('Yelp is yelping');
+    });
+}
+
+// YELP CONSTRUCTOR /////
+function YelpData(city) {
+  this.name = city.name,
+  this.image_url = city.image_url,
+  this.price = city.price,
+  this.rating = city.rating,
+  this.url = city.url;
+}
+
+
+
 // const errorHandler = (error, request, response) => {
 //   response.status(500).send(error);
 // }
