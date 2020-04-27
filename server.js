@@ -197,7 +197,7 @@ app.get('/yelp', yelpFunction);
 function yelpFunction (request, response){
 
   const city = request.query.city;
-  const yelpUrl = `https://api.yelp.com/v3/businesses/search?api_key=${process.env.YELP_API_KEY}&language=en-US&query=${city}`; 
+  const yelpUrl = `https://api.yelp.com/v3/businesses/search/yelp?api_key=${process.env.YELP_API_KEY}&language=en-US&query=${city}`; 
     return superagent.get(yelpUrl)
     .then(data => {
         let yelpData = data.body.results.map( city => {
