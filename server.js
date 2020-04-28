@@ -17,8 +17,8 @@ app.use(cors());
 
 // PATHS /////
 //  path to location
-let weatherArray = [];
-let trailsArray = [];
+// let weatherArray = [];
+// let trailsArray = [];
 
 
 // LOCATION /////
@@ -191,16 +191,20 @@ function MovieData(movie) {
 app.get('/yelp', yelpFunction);
 function yelpFunction (request, response){
 
-  const city = request.query.city;
-  const yelpUrl = `https://api.yelp.com/v3/businesses/search/yelp?api_key=${process.env.YELP_API_KEY}&language=en-US&query=${city}`; 
+  let latitude = request.query.latitude;
+  let longitude = request.query.longitude;
+  
+  const yelpUrl = `https://api.yelp.com/v3/businesses/search?latitude=${latitude}&longitude=${longitude}`; 
     return superagent.get(yelpUrl)
+    .set('Authorization', `Bearer ${process.env.YELP_API_KEY}`)
     .then(data => {
-        let yelpData = data.body.results.map( city => {
-        return new YelpData(city);
+      console.log(data.body)
+        let yelpResult = data.body.businesses.map( yelp => {
+        return new YelpData(yelp);
         });
-        console.log('yelp data', yelpData)
+        // console.log('yelp data', yelpData)
 
-        response.status(200).json(yelpData);
+        response.status(200).json(yelpResult);
 
 // YELP ERROR HANDLER /////
     })
