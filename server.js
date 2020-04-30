@@ -17,8 +17,8 @@ app.use(cors());
 
 // PATHS /////
 //  path to location
-let weatherArray = [];
-let trailsArray = [];
+// let weatherArray = [];
+// let trailsArray = [];
 
 
 // LOCATION /////
@@ -36,6 +36,7 @@ function weatherFunction (request, response){
   const key = process.env.WEATHER_API_KEY;
   const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${key}`;
   superagent.get(url).then(weatherResponse => {
+
     
     const data = weatherResponse.body.data;
     console.log(data)
@@ -45,6 +46,13 @@ function weatherFunction (request, response){
     response.send(results);
   
  })
+
+    const data = weatherResponse.body.data;
+    const results = [];
+    data.map(item => results.push(new Weather(item.datetime, item.weather.description)));
+    response.send(results);
+  })
+
       .catch(err => {
         console.log(err);
         response.status(500).send('Weather Broke');
@@ -54,10 +62,12 @@ function weatherFunction (request, response){
  
 
 // WEATHER CONSTRUCTOR /////
+
 function Weather(day) {
     // console.log(day.forecast)
 this.forecast = day.weather.description;
 this.time = day.datetime;
+
 }
 
 
@@ -69,7 +79,8 @@ function trailsFunction (request, response){
       let latitude = request.query.latitude;
       let longitude = request.query.longitude;
       const trailsUrl = `https://hikingproject.com/data/get-trails?lat=${latitude}&lon=${longitude}&maxDistance=10&key=${process.env.TRAIL_API_KEY}`;
-       return superagent.get(trailsUrl)
+      // console.log(trailsUrl)
+      return superagent.get(trailsUrl)
       .then(data => {
         // console.log (data);
           
