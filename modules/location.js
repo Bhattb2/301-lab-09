@@ -2,11 +2,11 @@
 
 require('dotenv').config();
 const superagent = require('superagent');
-const pg = require('pg')
-const client = new pg.Client(process.env.DATABASE_URL); //server becomes client, connects to database
+const client = require('./client');
 
 
 function locationFunction (request, response) {
+  console.log('in the locationFunction')
     const url = 'https://us1.locationiq.com/v1/search.php';
     let city = request.query.city;
     const queryStringParams = {
@@ -30,7 +30,7 @@ function locationFunction (request, response) {
             superagent.get(url)
             .query(queryStringParams)
             .then( data => {
-                console.log(dataclient.query)
+                // console.log(dataclient.query)
               let locationData = data.body[0];
               // console.log(locationData);
               let location = new Location(city,locationData);
@@ -56,6 +56,7 @@ function locationFunction (request, response) {
     this.formatted_query = geoData.display_name;
     this.latitude = geoData.lat;
     this.longitude = geoData.lon;
-    
   }
+
+
 module.exports = locationFunction;  
