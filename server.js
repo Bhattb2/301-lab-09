@@ -6,12 +6,12 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const pg = require('pg');
-
+const client = new pg.Client(process.env.DATABASE_URL); //server becomes client, connects to database
 // INTERACT WITH APIs /////
 const superagent = require('superagent');
 
 const PORT = process.env.PORT || 3000;
-const client = new pg.Client(process.env.DATABASE_URL); //server becomes client, connects to database
+
 client.on('error', err=> console.error(err)); //confirms if you are up and running
 app.use(cors());
 
@@ -22,59 +22,9 @@ app.use(cors());
 
 
 // LOCATION /////
-
+const locationFunction = require('./modules/location.js');
 app.get('/location', locationFunction);
-function locationFunction (request, response) {
-  const url = 'https://us1.locationiq.com/v1/search.php';
-  let city = request.query.city;
-  const queryStringParams = {
-      key: process.env.GEOCODE_API_KEY,
-      q: city,
-      format: 'json',
-      limit: 1,
-  };
 
-  const searchSQL = ` SELECT * FROM locations WHERE search_query = $1`;
-  const searchValues = [city];
-  return client.query(searchSQL, searchValues)
-    .then(results => {
-      // console.log(results);
-      if (results.rowCount) {
-        // console.log(`${city} came from database request`);
-        console.log(results.rows[0],'line 44');
-        response.send(results.rows[0]);
-      } 
-      else {
-        superagent.get(url)
-          .query(queryStringParams)
-          .then( data => {
-            let locationData = data.body[0];
-            // console.log(locationData);
-            let location = new Location(city,locationData);
-            // console.log(location)
-            // console.log(`${city} came from API`);
-            let SQL = `INSERT INTO locations (search_query, formatted_query, latitude, longitude) VALUES ($1, $2, $3, $4) RETURNING * `;
-            let saveVal = [location.search_query, location.formatted_query, location.latitude, location.longitude];
-            console.log(saveVal, 'line 58');
-            client.query(SQL, saveVal)
-              .then( () => {
-                // response.json(result);
-                response.send(location);
-              });
-          });
-      }
-    
-  })
-}
-
-// LOCATION CONSTRUCTOR to get information from geo.json file /////
-function Location (city, geoData) {
-  this.search_query = city;
-  this.formatted_query = geoData.display_name;
-  this.latitude = geoData.lat;
-  this.longitude = geoData.lon;
-  
-}
 
 
 // WEATHER /////
@@ -86,23 +36,38 @@ function weatherFunction (request, response){
   const key = process.env.WEATHER_API_KEY;
   const url = `https://api.weatherbit.io/v2.0/forecast/daily?lat=${latitude}&lon=${longitude}&key=${key}`;
   superagent.get(url).then(weatherResponse => {
+
+    
+    const data = weatherResponse.body.data;
+    console.log(data)
+    const results = data.map(item => {
+      return new Weather(item)
+    });
+    response.send(results);
+  
+ })
+
     const data = weatherResponse.body.data;
     const results = [];
     data.map(item => results.push(new Weather(item.datetime, item.weather.description)));
     response.send(results);
   })
+
       .catch(err => {
         console.log(err);
         response.status(500).send('Weather Broke');
       });
 
-    }
+}
  
 
 // WEATHER CONSTRUCTOR /////
-function Weather(date, weatherData) {
-  this.forecast = weatherData;
-  this.time = new Date(date).toDateString();
+
+function Weather(day) {
+    // console.log(day.forecast)
+this.forecast = day.weather.description;
+this.time = day.datetime;
+
 }
 
 
@@ -222,6 +187,7 @@ function YelpData(city) {
   this.rating = city.rating,
   this.url = city.url;
 }
+
 
 
 

@@ -9,4 +9,3 @@ CREATE TABLE locations (
     
 );
 
-INSERT INTO locations (search_query, latitude, longitude) VALUES ('seattle', 44, 122);
